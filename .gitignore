@@ -1,0 +1,10 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup 
+crash.log
+*.tfvars
+*.tfvars.json 
+Thumbs.db 
+.terraform.lock.hcl 
+
