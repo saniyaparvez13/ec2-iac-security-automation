@@ -19,8 +19,8 @@ data "aws_vpc" "default" {
   default = true
 }
 # Hardened Security Group
-# bridgecrew: skip=CKV_AWS_260: Port 80 required for public web server 
-# bridgecrew: skip=CKV_AWS_382: Outbound traffic required for system package updates 
+# bridgecrew:skip=CKV_AWS_260: "Port 80 required for public web server"  
+# bridgecrew:skip=CKV_AWS_382: "Outbound traffic required for system package updates" 
 resource "aws_security_group" "web_sg" {
   name        = "security-web-sg"
   description = "Security group with restricted ingress"
