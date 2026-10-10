@@ -18,14 +18,15 @@ provider "aws" {
 data "aws_vpc" "default" {
   default = true
 }
-# Hardened Security Group 
+# Hardened Security Group
+# bridgecrew: skip=CKV_AWS_260: Port 80 required for public web server 
+# bridgecrew: skip=CKV_AWS_382: Outbound traffic required for system package updates 
 resource "aws_security_group" "web_sg" {
   name        = "security-web-sg"
   description = "Security group with restricted ingress"
   vpc_id      = data.aws_vpc.default.id
 
   # Inbound: Only HTTP port 80
-  # bridgecrew: skip=CKV_AWS_260: "Port 80 is required for public HTTP web server demo"
   ingress {
     description = "Allow inbound HTTP"
     from_port   = 80
@@ -35,7 +36,6 @@ resource "aws_security_group" "web_sg" {
   }
 
   # Outbound: All traffic allowed 
-  # bridgecrew: skip=CKV_AWS_382: "Outbound internet access required for OS updates and package installation"
   egress {
     description = "Allow outbound traffic"
     from_port   = 0
@@ -91,6 +91,7 @@ resource "aws_instance" "web_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = "t3.micro"
   ebs_optimized = true 
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name 
 
   #Security Group attach karna jo Block 2 mein banaya tha 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
