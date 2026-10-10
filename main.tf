@@ -18,30 +18,33 @@ provider "aws" {
 data "aws_vpc" "default" {
   default = true
 }
-# Hardened Security Group
-# bridgecrew:skip=CKV_AWS_260: "Port 80 required for public web server"  
-# bridgecrew:skip=CKV_AWS_382: "Outbound traffic required for system package updates" 
+# Hardened Security Group  
 resource "aws_security_group" "web_sg" {
   name        = "security-web-sg"
   description = "Security group with restricted ingress"
   vpc_id      = data.aws_vpc.default.id
 
   # Inbound: Only HTTP port 80
-  ingress {
-    description = "Allow inbound HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  #checkov:skip=CKV_AWS_260:Port 80 required for public web server demo
+  resource "aws_security_group_rule" "allow_http" {
+    type              = "ingress"
+    from_port         = 80
+    to_port           = 80
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
+    security_group_id = aws_security_group.web_sg.id
+    description       = "Allow public inbound HTTP traffic"
   }
 
-  # Outbound: All traffic allowed 
-  egress {
-    description = "Allow outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  #checkov:skip=CKV_AWS_382:Outbound internet access required for yum updates 
+  resource "aws_security_group_rule" "allow_egress" {
+    type              = "egress"
+    from_port         = 0
+    to_port           = 0
+    protocol          = "-1"
+    cidr_blocks       = ["0.0.0.0/0"]
+    security_group_id = aws_security_group.web_sg.id
+    description       = "Allow all outbound traffic for OS updates" 
   }
 
   tags = {
