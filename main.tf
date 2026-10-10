@@ -25,6 +25,7 @@ resource "aws_security_group" "web_sg" {
   vpc_id      = data.aws_vpc.default.id
 
   # Inbound: Only HTTP port 80
+  # bridgecrew: skip=CKV_AWS_260: "Port 80 is required for public HTTP web server demo"
   ingress {
     description = "Allow inbound HTTP"
     from_port   = 80
@@ -34,6 +35,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   # Outbound: All traffic allowed 
+  # bridgecrew: skip=CKV_AWS_382: "Outbound internet access required for OS updates and package installation"
   egress {
     description = "Allow outbound traffic"
     from_port   = 0
@@ -61,10 +63,34 @@ data "aws_ami" "amazon_linux_2023" {
 
 }
 
+# Baseline IAM Role and Instance Profile for EC2 
+resource "aws_iam_role" "ec2_baseline_role" {
+    name = "ec2-baseline-security-role"
+
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Action = "sts:AssumeRole"
+                Effect = "Allow"
+                Principal = {
+                    Service = "ec2.amazonaws.com"
+                }
+            }
+        ]
+    })
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+    name = "ec2-baseline-instance-profile"
+    role = aws_iam_role.ec2_baseline_role.name
+}
+
 #Block 4 – "Hardened EC2 Instance"
 resource "aws_instance" "web_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = "t3.micro"
+  ebs_optimized = true 
 
   #Security Group attach karna jo Block 2 mein banaya tha 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
