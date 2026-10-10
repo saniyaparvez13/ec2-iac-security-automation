@@ -1,0 +1,36 @@
+name: "IaC CI/CD Pipeline"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  builds-and-test:
+    name: "Initialize and Test Environment"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout Source Code"
+        uses: actions/checkout@v4
+
+      - name: "Run Checkov IaC Security Scan"
+        uses: bridgecrewio/checkov-action@master
+        with:
+          framework: terraform
+          output_format: cli
+          soft_fail: true
+
+      - name: "Run Trivy Vulnerability & Misconfig Scan"
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          scan-ref: "."
+          severity: "CRITICAL,HIGH"
+          exit-code: "0" 
+
+      - name: "Echo Test Message"
+        run: |
+          echo "pipeline trigger successfully!"
+          echo "The code has been checked out from the repository onto the runner machine."
