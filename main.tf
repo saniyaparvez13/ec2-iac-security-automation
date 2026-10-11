@@ -21,7 +21,7 @@ data "aws_vpc" "default" {
 
 # Hardened Security Group  
 resource "aws_security_group" "web_sg" {
-  name        = "security-web-sg-pipeline"
+  name        = "security-web-sg-"
   description = "Security group with restricted ingress"
   vpc_id      = data.aws_vpc.default.id
 
@@ -68,7 +68,7 @@ data "aws_ami" "amazon_linux_2023" {
 
 # Baseline IAM Role and Instance Profile for EC2 
 resource "aws_iam_role" "ec2_baseline_role" {
-    name = "ec2-baseline-security-role-v2"
+    name = "ec2-baseline-security-role-"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
@@ -85,7 +85,7 @@ resource "aws_iam_role" "ec2_baseline_role" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-    name = "ec2-baseline-instance-profile-v2"
+    name = "ec2-baseline-instance-profile-"
     role = aws_iam_role.ec2_baseline_role.name
 }
 
