@@ -68,7 +68,7 @@ data "aws_ami" "amazon_linux_2023" {
 
 # Baseline IAM Role and Instance Profile for EC2 
 resource "aws_iam_role" "ec2_baseline_role" {
-    name = "ec2-baseline-security-role"
+    name = "ec2-baseline-security-role-v2"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
@@ -85,7 +85,7 @@ resource "aws_iam_role" "ec2_baseline_role" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-    name = "ec2-baseline-instance-profile"
+    name = "ec2-baseline-instance-profile-v2"
     role = aws_iam_role.ec2_baseline_role.name
 }
 
