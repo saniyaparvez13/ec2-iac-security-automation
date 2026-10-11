@@ -18,11 +18,18 @@ provider "aws" {
 data "aws_vpc" "default" {
   default = true
 }
+
 # Hardened Security Group  
 resource "aws_security_group" "web_sg" {
   name        = "security-web-sg"
   description = "Security group with restricted ingress"
   vpc_id      = data.aws_vpc.default.id
+
+   tags = {
+    Name        = "secure-web-sg"
+    Environment = "DevSecOps"
+  }
+}
 
   # Inbound: Only HTTP port 80
   #checkov:skip=CKV_AWS_260:Port 80 required for public web server demo
@@ -46,13 +53,6 @@ resource "aws_security_group" "web_sg" {
     security_group_id = aws_security_group.web_sg.id
     description       = "Allow all outbound traffic for OS updates" 
   }
-
-  tags = {
-    Name        = "secure-web-sg"
-    Environment = "DevSecOps"
-  }
-
-}
 
 #Block 3 – "Dynamic Lookup for the Official Amazon Linux 2023 AMI"
 data "aws_ami" "amazon_linux_2023" {
