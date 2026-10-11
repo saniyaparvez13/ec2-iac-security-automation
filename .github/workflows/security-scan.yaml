@@ -38,9 +38,45 @@ jobs:
           scan-type: "config"
           scan-ref: "."
           severity: "CRITICAL,HIGH"
-          exit-code: "0" 
+          exit-code: "0"
+
+      # Step 4: Setup Terraform CLI
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      # Step 5: Terraform Init 
+      - name: "Terraform Init"
+        run: terraform init 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "ap-south-1" 
+
+      # Step 6: Terraform Plan 
+      - name: "Terraform Plan"
+        run: terraform plan 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "ap-south-1" 
+
+      # Step 7: Terraform Apply (Auto-deploy on push to main)
+      - name: "Terraform Apply"
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "ap-south-1"
 
       - name: "Echo Test Message"
         run: |
           echo "pipeline trigger successfully!"
           echo "The code has been checked out from the repository onto the runner machine."
+
+
+
+
+          
