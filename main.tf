@@ -21,7 +21,7 @@ data "aws_vpc" "default" {
 
 # Hardened Security Group  
 resource "aws_security_group" "web_sg" {
-  name        = "security-web-sg"
+  name        = "security-web-sg-pipeline"
   description = "Security group with restricted ingress"
   vpc_id      = data.aws_vpc.default.id
 
