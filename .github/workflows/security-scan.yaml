@@ -14,14 +14,24 @@ jobs:
     steps:
       - name: "Checkout Source Code"
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # Step 1: Secrets Scanning (Gitleaks)
+      - name: "Run Gitleaks Secret Scan"
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Step 2: IaC Security Scan (Checkov)
       - name: "Run Checkov IaC Security Scan"
         uses: bridgecrewio/checkov-action@master
         with:
           framework: terraform
           output_format: cli
           soft_fail: true
-
+      
+      # Step 3: Vulnerability & Misconfig Scan (Trivy)
       - name: "Run Trivy Vulnerability & Misconfig Scan"
         uses: aquasecurity/trivy-action@master
         with:
